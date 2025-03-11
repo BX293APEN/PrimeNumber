@@ -20,7 +20,7 @@ if __name__ == "__main__":
             flag = 0
             print(f"{len(str(n))}桁")
             for p in pData:
-                if p[0] > n ** 2:
+                if p[0] ** 2 > n:
                     break
                 elif (n % p[0]) == 0:
                     flag = 1
