@@ -36,11 +36,13 @@ if __name__ == "__main__":
         while n < target:
             flag = 0
             for p in pData:
-                if (n % p[0]) == 0:
+                if p[0] ** 2 > n:
+                    break
+
+                elif (n % p[0]) == 0:
                     flag = 1
                     break
-                elif p[0] ** 2 >= n:
-                    break
+                
                 
             if flag == 0:
                 try:
