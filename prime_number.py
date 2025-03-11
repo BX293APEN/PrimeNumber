@@ -1,34 +1,41 @@
 import subprocess, time
-def init():
-    with open("prime_number.list", "w", encoding="UTF-8") as pFile:
-        pFile.write("2\n3")
+from MySQLite import MySQLite
 
-def list_sort():
-    with open("prime_number.list", "r", encoding="UTF-8") as pFile:
-        pData = pFile.read().split("\n")
-    pDataList = sorted(list(set(pData)), key = lambda value: int(value))
-    data = "\n".join([i for i in pDataList])
-    #print(data)
-    with open("prime_number.list", "w", encoding="UTF-8") as pFile:
-        pFile.write(data)
+
 
 if __name__ == "__main__":
-    list_sort()
     target = 2 ** 256
-    with open("prime_number.list", "r", encoding="UTF-8") as pFile:
-        pData = [int(i) for i in pFile.read().split("\n")]
-    n = int(pData[-1])
-    while n < target:
-        subprocess.Popen("cls", shell=True)
-        flag = 0
-        print(f"{len(str(n))}桁")
-        for p in pData:
-            if (n % p) == 0:
-                flag = 1
-                break
-        if flag == 0:
-            pData.append(n)
-            with open("prime_number.list", "a", encoding="UTF-8") as pFile:
-                pFile.write(f"\n{n}")
-        n += 2
-        time.sleep(0.001)
+    with MySQLite("prime_number.db") as database:
+        pData = database.send_sql(
+            f"""
+                SELECT value FROM 素数 ORDER BY value ASC;
+            """
+        )
+
+    n = int(pData[-1][0])
+
+    try:
+        while n < target:
+            subprocess.run("cls", shell=True)
+            flag = 0
+            print(f"{len(str(n))}桁")
+            for p in pData:
+                if p[0] > n ** 2:
+                    break
+                elif (n % p[0]) == 0:
+                    flag = 1
+                    break
+                
+            if flag == 0:
+                try:
+                    with MySQLite("prime_number.db") as database:
+                        database.send_sql(
+                            f"""INSERT INTO 素数 (value) VALUES({int(n)})"""
+                        )
+                except Exception as e:
+                    print(e)
+            n += 2
+            time.sleep(0.01)
+            
+    except Exception as e:
+        input(e)
